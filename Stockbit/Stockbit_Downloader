@@ -1,0 +1,51 @@
+from selenium import webdriver
+from time import  sleep
+import os
+from bs4 import BeautifulSoup
+import re
+import requests
+import zipfile
+
+class Downloader:
+    def __init__(self, download_path='/Users/nugroho/basnugroho717@gmail.com drive/sahamin/stockbit',
+                 target_url='https://stockbit.com/'):
+        self.download_path = download_path
+        self.driver = webdriver.Chrome('/Users/nugroho/basnugroho717@gmail.com drive/sahamin/chromedriver')
+        self.target_url = target_url
+        self.empty_inlineXBRL_list = []
+        self.submitted_inlineXBRL_list = []
+
+    def login(self, username="basnugroho", password="Puertorico123"):
+        #self.driver.find_element_by_xpath('//a[@class="login-ldn"]').click()
+        self.driver.get(self.target_url+"#/login")
+        inputUsername = self.driver.find_element_by_xpath('//input[@id="username"]')
+        inputUsername.send_keys(username)
+        inputPass = self.driver.find_element_by_xpath('//input[@id="password"]')
+        inputPass.send_keys(password)
+        loginBtn = self.driver.find_element_by_xpath('//input[@id="loginbutton"]')
+        loginBtn.click()
+
+    def load_stock_financials(self, stock="asii"):
+        self.driver.get(self.target_url+"#/symbol/"+stock+"/financials")
+
+
+    def open_target_url(self):
+        # open target url
+        self.driver.get(self.target_url)
+
+    def close_browser(self):
+        self.driver.close()
+
+    def save_income_statement_html(self, stock_code):
+        try:
+            file = open('/Users/nugroho/basnugroho717@gmail.com drive/sahamin/stockbit/income_statement/'+stock_code+'.html', 'w', encoding='utf-8')
+            file.write(self.driver.page_source)
+            file.close()
+        except:
+            print('save file error')
+
+if __name__ == '__main__':
+    dl = Downloader()
+    dl.login(); sleep(2)
+    dl.load_stock_financials()
+    dl.save_income_statement_html("ASII")
