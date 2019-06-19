@@ -378,10 +378,10 @@ class RTI_Reader:
                 self.write_json_fails.append(self.stock_code)
         else:
             try:
-                # with open(self.file_path + "/json/" + self.ending_period + '-all/' + self.stock_code + '_general_' + self.ending_period + '.json',
-                #           'w') as outfile:
-                #     json.dump(self.extract_general_info(stock_code=self.stock_code), outfile, indent=4)
-                #     outfile.close()
+                with open(self.file_path + "/json/" + self.ending_period + '-all/' + self.stock_code + '_general_' + self.ending_period + '.json',
+                          'w') as outfile:
+                    json.dump(self.extract_general_info(stock_code=self.stock_code), outfile, indent=4)
+                    outfile.close()
                 with open(self.file_path + "/json/" + self.ending_period + '-all/' + self.stock_code + '_income_statements_quarter_' + self.ending_period + '.json',
                           'w') as outfile:
                     json.dump(self.extract_income_statement(stock_code=self.stock_code, period="quarter"), outfile,
@@ -407,10 +407,10 @@ class RTI_Reader:
                           'w') as outfile:
                     json.dump(self.extract_cash_flow(stock_code=self.stock_code, period="annual"), outfile, indent=4)
                     outfile.close()
-                with open(self.file_path + "/json/" + self.ending_period + '-all/' + self.stock_code + '_ratios_ending_period_' +self.ending_period + '.json',
-                          'w') as outfile:
-                    json.dump(self.extract_ratios(stock_code=self.stock_code), outfile, indent=4)
-                    outfile.close()
+                # with open(self.file_path + "/json/" + self.ending_period + '-all/' + self.stock_code + '_ratios_annual' +self.ending_period + '.json',
+                #           'w') as outfile:
+                #     json.dump(self.extract_ratios(stock_code=self.stock_code), outfile, indent=4)
+                #     outfile.close()
             except (FileNotFoundError, IOError):
                 print(f"Wrong file or file path for {self.stock_code} error: {FileNotFoundError}")
                 self.write_json_fails.append(self.stock_code)
@@ -423,6 +423,41 @@ if __name__ == '__main__':
     stocks = pd.DataFrame(stocks)
     go = False
     for stock in stocks["Kode"]:
+        print(reader.extract_general_info(stock_code=stock))
+        print("")
+        # print(reader.extract_income_statement(stock_code=stock, period="annual"))
+        # print("")
+        # print(reader.extract_balance_sheet(stock_code=stock, period="annual"))
+        # print("")
+        # print(reader.extract_cash_flow(stock_code=stock, period="annual"))
+        # print("")
+        # print(reader.extract_ratios(stock_code=stock))
+
+        reader.write_json(stock)
+    print("write json done")
+
+    stock_list = []
+    for stock in stocks["Kode"]:
+        stock_list.append(stock)
+    print(stock_list)
+
+    # write stock list json
+    try:
+        with open(
+                reader.file_path + "/json/stock_list.json",
+                'w') as outfile:
+            json.dump(stock_list, outfile)
+            outfile.close()
+            print(f"write stock list json succeed")
+    except (FileNotFoundError, IOError):
+        print(f"Wrong file or file path error: {FileNotFoundError}")
+
+
+    # for selected stocks only
+    reader = RTI_Reader(all=True, read_online=False)
+    stocks = ["AALI"]
+
+    for stock in stocks:
         print(reader.extract_general_info(stock_code=stock))
         print("")
         # print(reader.extract_income_statement(stock_code=stock, period="annual"))
