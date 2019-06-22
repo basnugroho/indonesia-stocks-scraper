@@ -129,17 +129,6 @@ def get_all_prices(stock_code):
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
 
-# stocks = pd.read_excel('/Users/nugroho/basnugroho717@gmail.com drive/sahamin/rti/daftar_saham.xlsx')
-# stocks = pd.DataFrame(stocks)
-#
-# i = 0
-# for stock in stocks["Kode"]:
-#     print(fetcher.get_yesterday_close_price(stock))
-#     i+=1
-#     if i > 3:
-#         break
-
-
 # run it
 # export FLASK_APP=FlaskStock.py
 # export FLASK_ENV=development
