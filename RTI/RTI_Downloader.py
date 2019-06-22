@@ -2,7 +2,7 @@ from selenium import webdriver
 from time import  sleep
 import os
 import pandas as pd
-from Scrapers.RTI.RTI_Reader import RTI_Reader
+from RTI.RTI_Reader import RTI_Reader
 from bs4 import BeautifulSoup
 import requests
 import re
@@ -12,9 +12,9 @@ class Downloader:
     def __init__(self,
                  ending_period = "31-Mar-2019",
                  force_download = False,
-                 download_path = '/Users/nugroho/basnugroho717@gmail.com drive/sahamin/rti',
-                 target_url = 'https://analytics2.rti.co.id/?m_id=1&sub_m=s2&sub_sub_m=3',
-                 driver = webdriver.Chrome('/Users/nugroho/basnugroho717@gmail.com drive/sahamin/chromedriver')):
+                 target_url='https://analytics2.rti.co.id/?m_id=1&sub_m=s2&sub_sub_m=3',
+                 download_path = '/Users/nugroho/Google Drive/sahamin/rti',
+                 driver = webdriver.Chrome('./chromedriver')):
         self.download_path = download_path
         self.target_url = target_url
         self.driver = driver
@@ -218,10 +218,14 @@ if __name__ == '__main__':
     #dl.close_browser()
     dl.empty_stocks
 
-    # single download test
+    # download selected stocks test
     # dl = Downloader()
     # dl.open_target_url()
-    # dl.load_stock(stock_code="CKRA", period="annual", fin_part="income_statement")
+    # stocks = ["AALI"]
+    # for stock in stocks:
+    #     dl.load_stock(stock_code=stock, period="annual", fin_part="income_statement")
+    #     dl.load_stock(stock_code=stock,period="annual",fin_part="balance_sheet")
+    #     dl.load_stock(stock_code=stock, period="annual", fin_part="cash_flow")
     # reader = RTI_Reader(all=False, read_online=False)
     # # print(reader.extract_income_statement(stock_code=dl.stock_code, period=dl.period))
     # if dl.is_values_empty(0):

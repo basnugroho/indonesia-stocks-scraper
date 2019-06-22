@@ -3,14 +3,14 @@ import json
 import requests
 import pandas as pd
 import datetime
-from Scrapers.Yahoo import Stock_Price_Fetcher
+from Yahoo import Stock_Price_Fetcher
 
 class RTI_Reader:
     def __init__(self,
                  all=True,
                  read_online=False,
                  ending_period = "31-Mar-2019",
-                 file_path="/Users/nugroho/basnugroho717@gmail.com drive/sahamin/rti/",
+                 file_path="/Users/nugroho/Google Drive/sahamin/rti",
                  target_url = 'https://analytics2.rti.co.id/?m_id=1&sub_m=s2&sub_sub_m=3'):
 
         self.file_path = file_path
@@ -442,15 +442,15 @@ if __name__ == '__main__':
     print(stock_list)
 
     # write stock list json
-    try:
-        with open(
-                reader.file_path + "/json/stock_list.json",
-                'w') as outfile:
-            json.dump(stock_list, outfile)
-            outfile.close()
-            print(f"write stock list json succeed")
-    except (FileNotFoundError, IOError):
-        print(f"Wrong file or file path error: {FileNotFoundError}")
+    # try:
+    #     with open(
+    #             reader.file_path + "/json/stock_list.json",
+    #             'w') as outfile:
+    #         json.dump(stock_list, outfile)
+    #         outfile.close()
+    #         print(f"write stock list json succeed")
+    # except (FileNotFoundError, IOError):
+    #     print(f"Wrong file or file path error: {FileNotFoundError}")
 
 
     # for selected stocks only
@@ -489,9 +489,6 @@ if __name__ == '__main__':
     #
     #     reader.write_json(stock)
     # print("write json done")
-    #
-    #
-    #
     #
     #
     # reader.write_json_fails
