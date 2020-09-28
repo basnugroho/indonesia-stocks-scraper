@@ -1,20 +1,15 @@
 from selenium import webdriver
-from time import  sleep
+from time import sleep
 import os
-import pandas as pd
 from RTI.RTI_Reader import RTI_Reader
-from bs4 import BeautifulSoup
-import requests
-import re
-import zipfile
 
-class Downloader:
+class RTI_Downloader:
     def __init__(self,
-                 ending_period = "31-Mar-2019",
+                 ending_period = "31-Mar-2020",
                  force_download = False,
                  target_url='https://analytics2.rti.co.id/?m_id=1&sub_m=s2&sub_sub_m=3',
                  download_path = '/Users/nugroho/Google Drive/sahamin/rti',
-                 driver = webdriver.Chrome('./chromedriver')):
+                 driver = webdriver.Chrome('./chromedriver_85')):
         self.download_path = download_path
         self.target_url = target_url
         self.driver = driver
@@ -55,7 +50,7 @@ class Downloader:
                 print(f"{self.stock_code}.html in {self.ending_period} {self.fin_part} ({self.period}) has values!")
                 self.download_attempt = 1
                 # continue to the next stock
-        else: # file not exist yet then download
+        else: # file not exist yet, then download
             print(f"{self.stock_code}.html in {self.ending_period} {self.fin_part} ({self.period}) not exist!")
             self.submit_stock(stock_code=self.stock_code, fin_part=self.fin_part, period=self.period)
             self.download_page_source()
@@ -68,10 +63,14 @@ class Downloader:
         self.period = period.lower()
 
         self.open_target_url()
+        print("cari texfield code saham")
         code_form = self.driver.find_element_by_xpath('//input[@name="codefld2"]')  # input code saham
         sleep(1)  # butuh di pause kadang ngetik gak lengkap keburu di submit
+        print("isi code saham")
         code_form.send_keys(self.stock_code)  # isi code saham
-        self.driver.find_element_by_xpath('//input[@id="go"]').click()  # klik button Go
+        print("send return key")
+        code_form.send_keys(u'\ue007')
+        #self.driver.find_element_by_xpath('//input[@id="go"]').click()  # klik button Go
         if self.fin_part == "balance_sheet":
             self.driver.find_element_by_xpath('//a[@id="fm1"]').click()  # klik balance sheet
         elif self.fin_part == "cash_flow":
@@ -85,7 +84,12 @@ class Downloader:
             self.driver.find_element_by_xpath('//a[@id="fin_prd3"]').click()  # klik quarter
 
     def open_target_url(self):
-        self.driver.get(self.target_url)
+        if 'browserVersion' in self.driver.capabilities:
+            print("opening target url")
+            self.driver.get(self.target_url)
+        else:
+            print("plese check your chrome version, "
+                  "this chrome driver only support version: "+self.driver.capabilities['version'])
 
     def close_browser(self):
         self.driver.close()
@@ -202,20 +206,23 @@ class Downloader:
             return False
 
 if __name__ == '__main__':
-    dl = Downloader()
+    dl = RTI_Downloader()
+    dl.download_path = '/Users/basnugroho/Google Drive (baskoro.18051@mhs.its.ac.id)/sahamin/rti'
+    dl.ending_period = "30-Jun-2020"
     dl.open_target_url()
 
-    stocks = pd.read_excel(dl.download_path + '/daftar_saham.xlsx')
-    stocks = pd.DataFrame(stocks)
-    for stock in stocks["Kode"]:
-        dl.load_stock(stock_code=stock, period="annual", fin_part="income_statement")
+    #stocks = pd.read_excel(dl.download_path + '/daftar_saham.xlsx')
+    #stocks = pd.DataFrame(stocks)
+    stocks = ["BBRI", "UNVR", "BBCA"]
+    for stock in stocks:
+        dl.load_stock(stock_code=stock, period="quarter", fin_part="income_statement")
         # dl.load_stock(stock_code=stock,period="annual",fin_part="balance_sheet")
         # dl.load_stock(stock_code=stock, period="annual", fin_part="cash_flow")
         #
         # dl.load_stock(stock_code=stock, period="quarter", fin_part="income_statement")
         # dl.load_stock(stock_code=stock,period="quarter",fin_part="balance_sheet")
         # dl.load_stock(stock_code=stock, period="quarter", fin_part="cash_flow")
-    #dl.close_browser()
+    dl.close_browser()
     dl.empty_stocks
 
     # download selected stocks test

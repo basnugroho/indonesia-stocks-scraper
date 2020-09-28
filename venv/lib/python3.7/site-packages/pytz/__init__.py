@@ -22,8 +22,8 @@ from pytz.tzfile import build_tzinfo
 
 
 # The IANA (nee Olson) database is updated several times a year.
-OLSON_VERSION = '2019a'
-VERSION = '2019.1'  # pip compatible version number.
+OLSON_VERSION = '2020a'
+VERSION = '2020.1'  # pip compatible version number.
 __version__ = VERSION
 
 OLSEN_VERSION = OLSON_VERSION  # Old releases had this misspelling
@@ -34,7 +34,7 @@ __all__ = [
     'NonExistentTimeError', 'UnknownTimeZoneError',
     'all_timezones', 'all_timezones_set',
     'common_timezones', 'common_timezones_set',
-    'BaseTzInfo',
+    'BaseTzInfo', 'FixedOffset',
 ]
 
 
@@ -188,8 +188,14 @@ def _unmunge_zone(zone):
     return zone.replace('_plus_', '+').replace('_minus_', '-')
 
 
+_all_timezones_lower_to_standard = None
+
+
 def _case_insensitive_zone_lookup(zone):
     """case-insensitively matching timezone, else return zone unchanged"""
+    global _all_timezones_lower_to_standard
+    if _all_timezones_lower_to_standard is None:
+        _all_timezones_lower_to_standard = dict((tz.lower(), tz) for tz in all_timezones)  # noqa
     return _all_timezones_lower_to_standard.get(zone.lower()) or zone  # noqa
 
 
@@ -257,8 +263,8 @@ def _UTC():
     module global.
 
     These examples belong in the UTC class above, but it is obscured; or in
-    the README.txt, but we are not depending on Python 2.4 so integrating
-    the README.txt examples with the unit tests is not trivial.
+    the README.rst, but we are not depending on Python 2.4 so integrating
+    the README.rst examples with the unit tests is not trivial.
 
     >>> import datetime, pickle
     >>> dt = datetime.datetime(2005, 3, 1, 14, 13, 21, tzinfo=utc)
@@ -677,6 +683,7 @@ all_timezones = \
  'America/North_Dakota/Beulah',
  'America/North_Dakota/Center',
  'America/North_Dakota/New_Salem',
+ 'America/Nuuk',
  'America/Ojinaga',
  'America/Panama',
  'America/Pangnirtung',
@@ -1098,7 +1105,6 @@ all_timezones = LazyList(
         tz for tz in all_timezones if resource_exists(tz))
         
 all_timezones_set = LazySet(all_timezones)
-_all_timezones_lower_to_standard = dict((tz.lower(), tz) for tz in all_timezones)
 common_timezones = \
 ['Africa/Abidjan',
  'Africa/Accra',
@@ -1205,7 +1211,6 @@ common_timezones = \
  'America/Fort_Nelson',
  'America/Fortaleza',
  'America/Glace_Bay',
- 'America/Godthab',
  'America/Goose_Bay',
  'America/Grand_Turk',
  'America/Grenada',
@@ -1259,6 +1264,7 @@ common_timezones = \
  'America/North_Dakota/Beulah',
  'America/North_Dakota/Center',
  'America/North_Dakota/New_Salem',
+ 'America/Nuuk',
  'America/Ojinaga',
  'America/Panama',
  'America/Pangnirtung',

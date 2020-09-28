@@ -1,5 +1,3 @@
-from __future__ import division, absolute_import, print_function
-
 import sys
 import pytest
 
@@ -1864,7 +1862,7 @@ def test_iter_buffered_cast_structured_type():
     # make sure multi-field struct type -> simple doesn't work
     sdt = [('a', 'f4'), ('b', 'i8'), ('d', 'O')]
     a = np.array([(5.5, 7, 'test'), (8, 10, 11)], dtype=sdt)
-    assert_raises(ValueError, lambda: (
+    assert_raises(TypeError, lambda: (
         nditer(a, ['buffered', 'refs_ok'], ['readonly'],
                casting='unsafe',
                op_dtypes='i4')))
@@ -2104,7 +2102,7 @@ def test_iter_buffering_string():
     assert_equal(i[0], b'abc')
     assert_equal(i[0].dtype, np.dtype('S6'))
 
-    a = np.array(['abc', 'a', 'abcd'], dtype=np.unicode)
+    a = np.array(['abc', 'a', 'abcd'], dtype=np.unicode_)
     assert_equal(a.dtype, np.dtype('U4'))
     assert_raises(TypeError, nditer, a, ['buffered'], ['readonly'],
                     op_dtypes='U2')
@@ -2188,7 +2186,7 @@ def test_iter_no_broadcast():
                   [['readonly'], ['readonly'], ['readonly', 'no_broadcast']])
 
 
-class TestIterNested(object):
+class TestIterNested:
 
     def test_basic(self):
         # Test nested iteration basic usage
@@ -2292,7 +2290,7 @@ class TestIterNested(object):
         assert_equal(vals, [[0, 1, 2], [3, 4, 5]])
         vals = None
 
-        # writebackifcopy - using conext manager
+        # writebackifcopy - using context manager
         a = arange(6, dtype='f4').reshape(2, 3)
         i, j = np.nested_iters(a, [[0], [1]],
                             op_flags=['readwrite', 'updateifcopy'],
@@ -2690,7 +2688,15 @@ def test_0d_iter():
     i = nditer(np.arange(5), ['multi_index'], [['readonly']], op_axes=[()])
     assert_equal(i.ndim, 0)
     assert_equal(len(i), 1)
-    # note that itershape=(), still behaves like None due to the conversions
+
+    i = nditer(np.arange(5), ['multi_index'], [['readonly']],
+               op_axes=[()], itershape=())
+    assert_equal(i.ndim, 0)
+    assert_equal(len(i), 1)
+
+    # passing an itershape alone is not enough, the op_axes are also needed
+    with assert_raises(ValueError):
+        nditer(np.arange(5), ['multi_index'], [['readonly']], itershape=())
 
     # Test a more complex buffered casting case (same as another test above)
     sdt = [('a', 'f4'), ('b', 'i8'), ('c', 'c8', (2, 3)), ('d', 'O')]

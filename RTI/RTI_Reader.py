@@ -10,7 +10,7 @@ class RTI_Reader:
                  all=True,
                  read_online=False,
                  ending_period = "31-Mar-2019",
-                 file_path="/Users/nugroho/Google Drive/sahamin/rti",
+                 file_path="/Users/basnugroho/Google Drive (baskoro.18051@mhs.its.ac.id)/sahamin/rti",
                  target_url = 'https://analytics2.rti.co.id/?m_id=1&sub_m=s2&sub_sub_m=3'):
 
         self.file_path = file_path
@@ -422,6 +422,7 @@ if __name__ == '__main__':
     stocks = pd.read_excel(reader.file_path + '/daftar_saham.xlsx')
     stocks = pd.DataFrame(stocks)
     go = False
+
     for stock in stocks["Kode"]:
         print(reader.extract_general_info(stock_code=stock))
         print("")
@@ -455,18 +456,18 @@ if __name__ == '__main__':
 
     # for selected stocks only
     reader = RTI_Reader(all=True, read_online=False)
-    stocks = ["AALI"]
+    stocks = ["BBRI"]
 
     for stock in stocks:
         print(reader.extract_general_info(stock_code=stock))
         print("")
-        # print(reader.extract_income_statement(stock_code=stock, period="annual"))
-        # print("")
-        # print(reader.extract_balance_sheet(stock_code=stock, period="annual"))
-        # print("")
-        # print(reader.extract_cash_flow(stock_code=stock, period="annual"))
-        # print("")
-        # print(reader.extract_ratios(stock_code=stock))
+        print(reader.extract_income_statement(stock_code=stock, period="annual"))
+        print("")
+        print(reader.extract_balance_sheet(stock_code=stock, period="annual"))
+        print("")
+        print(reader.extract_cash_flow(stock_code=stock, period="annual"))
+        print("")
+        print(reader.extract_ratios(stock_code=stock))
 
         reader.write_json(stock)
     print("write json done")

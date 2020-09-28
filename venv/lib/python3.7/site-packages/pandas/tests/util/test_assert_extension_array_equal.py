@@ -1,16 +1,19 @@
-# -*- coding: utf-8 -*-
-
 import numpy as np
 import pytest
 
+from pandas import array
+import pandas._testing as tm
 from pandas.core.arrays.sparse import SparseArray
-from pandas.util.testing import assert_extension_array_equal
 
 
-@pytest.mark.parametrize("kwargs", [
-    dict(),  # Default is check_exact=False
-    dict(check_exact=False), dict(check_exact=True)
-])
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        dict(),  # Default is check_exact=False
+        dict(check_exact=False),
+        dict(check_exact=True),
+    ],
+)
 def test_assert_extension_array_equal_not_exact(kwargs):
     # see gh-23709
     arr1 = SparseArray([-0.17387645482451206, 0.3414148016424936])
@@ -25,21 +28,18 @@ ExtensionArray values are different \\(50\\.0 %\\)
 \\[right\\]: \\[-0\\.17387645482.*, 0\\.341414801642.*\\]"""
 
         with pytest.raises(AssertionError, match=msg):
-            assert_extension_array_equal(arr1, arr2, **kwargs)
+            tm.assert_extension_array_equal(arr1, arr2, **kwargs)
     else:
-        assert_extension_array_equal(arr1, arr2, **kwargs)
+        tm.assert_extension_array_equal(arr1, arr2, **kwargs)
 
 
-@pytest.mark.parametrize("check_less_precise", [
-    True, False, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
-])
-def test_assert_extension_array_equal_less_precise(check_less_precise):
+@pytest.mark.parametrize("decimals", range(10))
+def test_assert_extension_array_equal_less_precise(decimals):
+    rtol = 0.5 * 10 ** -decimals
     arr1 = SparseArray([0.5, 0.123456])
     arr2 = SparseArray([0.5, 0.123457])
 
-    kwargs = dict(check_less_precise=check_less_precise)
-
-    if check_less_precise is False or check_less_precise >= 5:
+    if decimals >= 5:
         msg = """\
 ExtensionArray are different
 
@@ -48,9 +48,9 @@ ExtensionArray values are different \\(50\\.0 %\\)
 \\[right\\]: \\[0\\.5, 0\\.123457\\]"""
 
         with pytest.raises(AssertionError, match=msg):
-            assert_extension_array_equal(arr1, arr2, **kwargs)
+            tm.assert_extension_array_equal(arr1, arr2, rtol=rtol)
     else:
-        assert_extension_array_equal(arr1, arr2, **kwargs)
+        tm.assert_extension_array_equal(arr1, arr2, rtol=rtol)
 
 
 def test_assert_extension_array_equal_dtype_mismatch(check_dtype):
@@ -69,9 +69,9 @@ Attribute "dtype" are different
 \\[right\\]: Sparse\\[int32, 0\\]"""
 
         with pytest.raises(AssertionError, match=msg):
-            assert_extension_array_equal(arr1, arr2, **kwargs)
+            tm.assert_extension_array_equal(arr1, arr2, **kwargs)
     else:
-        assert_extension_array_equal(arr1, arr2, **kwargs)
+        tm.assert_extension_array_equal(arr1, arr2, **kwargs)
 
 
 def test_assert_extension_array_equal_missing_values():
@@ -86,7 +86,7 @@ ExtensionArray NA mask values are different \\(25\\.0 %\\)
 \\[right\\]: \\[True, False, False, False\\]"""
 
     with pytest.raises(AssertionError, match=msg):
-        assert_extension_array_equal(arr1, arr2)
+        tm.assert_extension_array_equal(arr1, arr2)
 
 
 @pytest.mark.parametrize("side", ["left", "right"])
@@ -94,9 +94,20 @@ def test_assert_extension_array_equal_non_extension_array(side):
     numpy_array = np.arange(5)
     extension_array = SparseArray(numpy_array)
 
-    msg = "{side} is not an ExtensionArray".format(side=side)
-    args = ((numpy_array, extension_array) if side == "left"
-            else (extension_array, numpy_array))
+    msg = f"{side} is not an ExtensionArray"
+    args = (
+        (numpy_array, extension_array)
+        if side == "left"
+        else (extension_array, numpy_array)
+    )
 
     with pytest.raises(AssertionError, match=msg):
-        assert_extension_array_equal(*args)
+        tm.assert_extension_array_equal(*args)
+
+
+@pytest.mark.parametrize("right_dtype", ["Int32", "int64"])
+def test_assert_extension_array_equal_ignore_dtype_mismatch(right_dtype):
+    # https://github.com/pandas-dev/pandas/issues/35715
+    left = array([1, 2, 3], dtype="Int64")
+    right = array([1, 2, 3], dtype=right_dtype)
+    tm.assert_extension_array_equal(left, right, check_dtype=False)

@@ -1,10 +1,9 @@
 import pandas_datareader.data as web
 import datetime
-import pandas as pd
 
 class Price_Fetcher:
     def __init__(self):
-        self.file_path = "/Users/nugroho/Google Drive/sahamin/rti"
+        self.file_path = "/Users/basnugroho/Google Drive (baskoro.18051@mhs.its.ac.id)/sahamin/rti"
 
     def get_yesterday_close_price(self, symbol):
         ticker = symbol.upper()+".JK"
@@ -15,3 +14,7 @@ class Price_Fetcher:
             return prices["Adj Close"].values[0]
         except:
             return 0
+
+pf = Price_Fetcher()
+price = pf.get_yesterday_close_price("TLKM")
+print(price)

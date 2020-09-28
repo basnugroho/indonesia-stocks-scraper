@@ -1,11 +1,9 @@
 """Test functions for matrix module
 
 """
-from __future__ import division, absolute_import, print_function
-
 from numpy.testing import (
     assert_equal, assert_array_equal, assert_array_max_ulp,
-    assert_array_almost_equal, assert_raises,
+    assert_array_almost_equal, assert_raises, assert_
     )
 
 from numpy import (
@@ -17,13 +15,16 @@ from numpy import (
 import numpy as np
 
 
+from numpy.core.tests.test_overrides import requires_array_function
+
+
 def get_mat(n):
     data = arange(n)
     data = add.outer(data, data)
     return data
 
 
-class TestEye(object):
+class TestEye:
     def test_basic(self):
         assert_equal(eye(4),
                      array([[1, 0, 0, 0],
@@ -105,7 +106,7 @@ class TestEye(object):
         assert mat_f.flags.f_contiguous
 
 
-class TestDiag(object):
+class TestDiag:
     def test_vector(self):
         vals = (100 * arange(5)).astype('l')
         b = zeros((5, 5))
@@ -152,7 +153,7 @@ class TestDiag(object):
         assert_raises(ValueError, diag, [[[1]]])
 
 
-class TestFliplr(object):
+class TestFliplr:
     def test_basic(self):
         assert_raises(ValueError, fliplr, ones(4))
         a = get_mat(4)
@@ -165,7 +166,7 @@ class TestFliplr(object):
         assert_equal(fliplr(a), b)
 
 
-class TestFlipud(object):
+class TestFlipud:
     def test_basic(self):
         a = get_mat(4)
         b = a[::-1, :]
@@ -177,7 +178,7 @@ class TestFlipud(object):
         assert_equal(flipud(a), b)
 
 
-class TestHistogram2d(object):
+class TestHistogram2d:
     def test_simple(self):
         x = array(
             [0.41702200, 0.72032449, 1.1437481e-4, 0.302332573, 0.146755891])
@@ -273,8 +274,29 @@ class TestHistogram2d(object):
         assert_array_equal(H, answer)
         assert_array_equal(xe, array([0., 0.25, 0.5, 0.75, 1]))
 
+    @requires_array_function
+    def test_dispatch(self):
+        class ShouldDispatch:
+            def __array_function__(self, function, types, args, kwargs):
+                return types, args, kwargs
 
-class TestTri(object):
+        xy = [1, 2]
+        s_d = ShouldDispatch()
+        r = histogram2d(s_d, xy)
+        # Cannot use assert_equal since that dispatches...
+        assert_(r == ((ShouldDispatch,), (s_d, xy), {}))
+        r = histogram2d(xy, s_d)
+        assert_(r == ((ShouldDispatch,), (xy, s_d), {}))
+        r = histogram2d(xy, xy, bins=s_d)
+        assert_(r, ((ShouldDispatch,), (xy, xy), dict(bins=s_d)))
+        r = histogram2d(xy, xy, bins=[s_d, 5])
+        assert_(r, ((ShouldDispatch,), (xy, xy), dict(bins=[s_d, 5])))
+        assert_raises(Exception, histogram2d, xy, xy, bins=[s_d])
+        r = histogram2d(xy, xy, weights=s_d)
+        assert_(r, ((ShouldDispatch,), (xy, xy), dict(weights=s_d)))
+
+
+class TestTri:
     def test_dtype(self):
         out = array([[1, 0, 0],
                      [1, 1, 0],
@@ -412,7 +434,7 @@ def test_tril_indices():
                               [-10, -10, -10, -10, -10]]))
 
 
-class TestTriuIndices(object):
+class TestTriuIndices:
     def test_triu_indices(self):
         iu1 = triu_indices(4)
         iu2 = triu_indices(4, k=2)
@@ -462,21 +484,21 @@ class TestTriuIndices(object):
                                   [16, 17, 18, -1, -1]]))
 
 
-class TestTrilIndicesFrom(object):
+class TestTrilIndicesFrom:
     def test_exceptions(self):
         assert_raises(ValueError, tril_indices_from, np.ones((2,)))
         assert_raises(ValueError, tril_indices_from, np.ones((2, 2, 2)))
         # assert_raises(ValueError, tril_indices_from, np.ones((2, 3)))
 
 
-class TestTriuIndicesFrom(object):
+class TestTriuIndicesFrom:
     def test_exceptions(self):
         assert_raises(ValueError, triu_indices_from, np.ones((2,)))
         assert_raises(ValueError, triu_indices_from, np.ones((2, 2, 2)))
         # assert_raises(ValueError, triu_indices_from, np.ones((2, 3)))
 
 
-class TestVander(object):
+class TestVander:
     def test_basic(self):
         c = np.array([0, 1, -2, 3])
         v = vander(c)
