@@ -6,7 +6,7 @@ import re
 import requests
 import zipfile
 
-class Downloader:
+class Stockbit_Downloader:
     def __init__(self, download_path='/Users/nugroho/basnugroho717@gmail.com drive/sahamin/stockbit',
                  target_url='https://stockbit.com/'):
         self.download_path = download_path

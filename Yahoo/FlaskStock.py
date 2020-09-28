@@ -1,7 +1,6 @@
 import pandas_datareader.data as web
 import datetime
 from flask import Flask
-from flask import jsonify
 import re
 import json
 

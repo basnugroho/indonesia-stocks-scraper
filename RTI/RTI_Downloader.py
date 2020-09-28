@@ -1,15 +1,16 @@
 from selenium import webdriver
 from time import sleep
+import pandas as pd
 import os
 from RTI.RTI_Reader import RTI_Reader
 
 class RTI_Downloader:
     def __init__(self,
-                 ending_period = "31-Mar-2020",
+                 ending_period = "30-Jun-2020",
                  force_download = False,
                  target_url='https://analytics2.rti.co.id/?m_id=1&sub_m=s2&sub_sub_m=3',
-                 download_path = '/Users/nugroho/Google Drive/sahamin/rti',
-                 driver = webdriver.Chrome('./chromedriver_85')):
+                 download_path = '/Users/basnugroho/Google Drive (baskoro.18051@mhs.its.ac.id)/sahamin/rti',
+                 driver = ""):
         self.download_path = download_path
         self.target_url = target_url
         self.driver = driver
@@ -22,6 +23,7 @@ class RTI_Downloader:
         self.values = ""
         self.force_download = force_download
         self.ending_period = ending_period
+        self.logged = 0
 
     def load_stock(self, stock_code, period="annual", fin_part="income_statement"):
         self.stock_code = stock_code.upper()
@@ -62,14 +64,29 @@ class RTI_Downloader:
         self.fin_part = fin_part.lower()
         self.period = period.lower()
 
-        self.open_target_url()
+        # self.open_target_url()
         print("cari texfield code saham")
         code_form = self.driver.find_element_by_xpath('//input[@name="codefld2"]')  # input code saham
         sleep(1)  # butuh di pause kadang ngetik gak lengkap keburu di submit
         print("isi code saham")
         code_form.send_keys(self.stock_code)  # isi code saham
-        print("send return key")
+        print("try send return key")
         code_form.send_keys(u'\ue007')
+        sleep(1)
+
+        if self.driver.find_element_by_xpath("//*[contains(text(), 'Login')]") != 0 and self.logged == 0:
+            print('login step is not automated yet, please login first, answer with "y" if done')
+            answer = input()
+            if answer == 'y':
+                self.logged = 1
+                print("thanks for helping me login :)")
+                self.submit_stock(stock_code, fin_part, period)
+            else:
+                print("hmmmm, please register and login first!")
+                self.submit_stock(stock_code, fin_part, period)
+        else:
+            print("already logged in, let us go!")
+
         #self.driver.find_element_by_xpath('//input[@id="go"]').click()  # klik button Go
         if self.fin_part == "balance_sheet":
             self.driver.find_element_by_xpath('//a[@id="fm1"]').click()  # klik balance sheet
@@ -84,6 +101,7 @@ class RTI_Downloader:
             self.driver.find_element_by_xpath('//a[@id="fin_prd3"]').click()  # klik quarter
 
     def open_target_url(self):
+        self.driver = webdriver.Chrome('./chromedriver_85')
         if 'browserVersion' in self.driver.capabilities:
             print("opening target url")
             self.driver.get(self.target_url)
@@ -206,36 +224,36 @@ class RTI_Downloader:
             return False
 
 if __name__ == '__main__':
+    # download selected stocks only
     dl = RTI_Downloader()
-    dl.download_path = '/Users/basnugroho/Google Drive (baskoro.18051@mhs.its.ac.id)/sahamin/rti'
     dl.ending_period = "30-Jun-2020"
     dl.open_target_url()
 
-    #stocks = pd.read_excel(dl.download_path + '/daftar_saham.xlsx')
-    #stocks = pd.DataFrame(stocks)
-    stocks = ["BBRI", "UNVR", "BBCA"]
+    # single stock
+    dl.load_stock(stock_code="CTRA", period="annual", fin_part="income_statement")
+
+    #selected stock
+    stocks = ["TLKM"]
     for stock in stocks:
         dl.load_stock(stock_code=stock, period="quarter", fin_part="income_statement")
-        # dl.load_stock(stock_code=stock,period="annual",fin_part="balance_sheet")
-        # dl.load_stock(stock_code=stock, period="annual", fin_part="cash_flow")
-        #
-        # dl.load_stock(stock_code=stock, period="quarter", fin_part="income_statement")
-        # dl.load_stock(stock_code=stock,period="quarter",fin_part="balance_sheet")
-        # dl.load_stock(stock_code=stock, period="quarter", fin_part="cash_flow")
+        dl.load_stock(stock_code=stock,period="quarter",fin_part="balance_sheet")
+        dl.load_stock(stock_code=stock, period="quarter", fin_part="cash_flow")
+        dl.load_stock(stock_code=stock, period="annual", fin_part="income_statement")
+        dl.load_stock(stock_code=stock,period="annual",fin_part="balance_sheet")
+        dl.load_stock(stock_code=stock, period="annual", fin_part="cash_flow")
+
+    # bulk download
+    dl.download_path = '/Users/basnugroho/Google Drive (baskoro.18051@mhs.its.ac.id)/sahamin/rti'
+    dl.open_target_url()
+    stocks = pd.read_excel(dl.download_path + '/daftar_saham.xlsx')
+    stocks = pd.DataFrame(stocks)
+    for stock in stocks["Kode"]:
+        dl.load_stock(stock_code=stock, period="quarter", fin_part="income_statement")
+        dl.load_stock(stock_code=stock,period="quarter",fin_part="balance_sheet")
+        dl.load_stock(stock_code=stock, period="quarter", fin_part="cash_flow")
+
+        dl.load_stock(stock_code=stock, period="annual", fin_part="income_statement")
+        dl.load_stock(stock_code=stock,period="quarter",fin_part="balance_sheet")
+        dl.load_stock(stock_code=stock, period="quarter", fin_part="cash_flow")
     dl.close_browser()
     dl.empty_stocks
-
-    # download selected stocks test
-    # dl = Downloader()
-    # dl.open_target_url()
-    # stocks = ["AALI"]
-    # for stock in stocks:
-    #     dl.load_stock(stock_code=stock, period="annual", fin_part="income_statement")
-    #     dl.load_stock(stock_code=stock,period="annual",fin_part="balance_sheet")
-    #     dl.load_stock(stock_code=stock, period="annual", fin_part="cash_flow")
-    # reader = RTI_Reader(all=False, read_online=False)
-    # # print(reader.extract_income_statement(stock_code=dl.stock_code, period=dl.period))
-    # if dl.is_values_empty(0):
-    #     print(f"{dl.stock_code} is empty")
-    # else:
-    #     print(dl.values)

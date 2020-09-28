@@ -16,5 +16,5 @@ class Price_Fetcher:
             return 0
 
 pf = Price_Fetcher()
-price = pf.get_yesterday_close_price("TLKM")
+price = pf.get_yesterday_close_price("BBRI")
 print(price)

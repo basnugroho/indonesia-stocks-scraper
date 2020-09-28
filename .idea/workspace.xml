@@ -21,6 +21,12 @@
   <component name="ChangeListManager">
     <list default="true" id="8e681ead-077e-41c0-a638-5d69b27a9667" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RTI/RTI_Downloader.py" beforeDir="false" afterPath="$PROJECT_DIR$/RTI/RTI_Downloader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RTI/RTI_Reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/RTI/RTI_Reader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Stockbit/Stockbit_Downloader" beforeDir="false" afterPath="$PROJECT_DIR$/Stockbit/Stockbit_Downloader" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Yahoo/FlaskStock.py" beforeDir="false" afterPath="$PROJECT_DIR$/Yahoo/FlaskStock.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Yahoo/Stock_Price_Fetcher.py" beforeDir="false" afterPath="$PROJECT_DIR$/Yahoo/Stock_Price_Fetcher.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
