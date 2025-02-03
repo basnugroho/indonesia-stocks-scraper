@@ -15,7 +15,7 @@ class Stockbit_Downloader:
         self.empty_inlineXBRL_list = []
         self.submitted_inlineXBRL_list = []
 
-    def login(self, username="basnugroho", password="Puertorico123"):
+    def login(self, username="username-kamu", password="password-kamu"):
         #self.driver.find_element_by_xpath('//a[@class="login-ldn"]').click()
         self.driver.get(self.target_url+"#/login")
         inputUsername = self.driver.find_element_by_xpath('//input[@id="username"]')
